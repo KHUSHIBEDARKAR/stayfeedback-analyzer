@@ -16,6 +16,8 @@ export default function Navbar() {
 
         <Link to="/dashboard">Dashboard</Link>
 
+        <Link to="/analyzer">Analyzer</Link>
+
         <Link
           to="/login"
           className="bg-white text-teal-700 px-3 py-1 md:px-5 md:py-2 rounded-lg font-semibold"
