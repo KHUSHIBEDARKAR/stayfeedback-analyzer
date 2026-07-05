@@ -2,7 +2,12 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
+const connectDB = require("./config/db");
+const Review = require("./models/Review");
+
 const app = express();
+
+connectDB();
 
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
@@ -10,34 +15,10 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 app.use(cors({ origin: FRONTEND_URL }));
 app.use(express.json());
 
-let reviews = [
-  {
-    id: 1,
-    text: "The host was helpful and the room was very clean.",
-    sentiment: "Positive",
-    theme: "host",
-    response: "Thank you for your kind words. We are glad you enjoyed your stay.",
-  },
-  {
-    id: 2,
-    text: "The food was average but the location was peaceful.",
-    sentiment: "Neutral",
-    theme: "food",
-    response: "Thank you for your feedback. We will work on improving our food service.",
-  },
-  {
-    id: 3,
-    text: "The bathroom was dirty and service was slow.",
-    sentiment: "Negative",
-    theme: "cleanliness",
-    response: "We apologize for the inconvenience. We will improve our cleanliness standards.",
-  },
-];
-
 function analyzeReview(text) {
   const lower = text.toLowerCase();
 
-  let sentiment = "Neutral";
+  let sentiment = "neutral";
 
   if (
     lower.includes("good") ||
@@ -48,7 +29,7 @@ function analyzeReview(text) {
     lower.includes("amazing") ||
     lower.includes("peaceful")
   ) {
-    sentiment = "Positive";
+    sentiment = "positive";
   }
 
   if (
@@ -58,7 +39,7 @@ function analyzeReview(text) {
     lower.includes("poor") ||
     lower.includes("not clean")
   ) {
-    sentiment = "Negative";
+    sentiment = "negative";
   }
 
   let theme = "experience";
@@ -71,9 +52,9 @@ function analyzeReview(text) {
 
   let response = "Thank you for your feedback. We appreciate your review.";
 
-  if (sentiment === "Positive") {
+  if (sentiment === "positive") {
     response = "Thank you for your kind words. We are glad you enjoyed your stay.";
-  } else if (sentiment === "Negative") {
+  } else if (sentiment === "negative") {
     response = "We apologize for the inconvenience. We will work to improve this experience.";
   }
 
@@ -84,129 +65,151 @@ app.get("/", (req, res) => {
   res.status(200).json({ message: "Homestay Review Classifier API is running" });
 });
 
-app.get("/api/reviews", (req, res) => {
-  res.status(200).json({ success: true, data: reviews });
+app.get("/api/reviews", async (req, res, next) => {
+  try {
+    const reviews = await Review.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, data: reviews });
+  } catch (error) {
+    next(error);
+  }
 });
 
-app.get("/api/reviews/search", (req, res) => {
-  const query = req.query.q;
+app.get("/api/reviews/search", async (req, res, next) => {
+  try {
+    const query = req.query.q;
 
-  if (!query) {
-    return res.status(400).json({
-      success: false,
-      message: "Search query is required",
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        message: "Search query is required",
+      });
+    }
+
+    const result = await Review.find({
+      text: { $regex: query, $options: "i" },
     });
+
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    next(error);
   }
-
-  const result = reviews.filter((review) =>
-    review.text.toLowerCase().includes(query.toLowerCase())
-  );
-
-  res.status(200).json({ success: true, data: result });
 });
 
-app.get("/api/reviews/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const review = reviews.find((item) => item.id === id);
+app.get("/api/reviews/:id", async (req, res, next) => {
+  try {
+    const review = await Review.findById(req.params.id);
 
-  if (!review) {
-    return res.status(404).json({
-      success: false,
-      message: "Review not found",
-    });
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found",
+      });
+    }
+
+    res.status(200).json({ success: true, data: review });
+  } catch (error) {
+    next(error);
   }
-
-  res.status(200).json({ success: true, data: review });
 });
 
-app.post("/api/reviews", (req, res) => {
-  const { text } = req.body;
+app.post("/api/reviews", async (req, res, next) => {
+  try {
+    const { text } = req.body;
 
-  if (!text) {
-    return res.status(400).json({
-      success: false,
-      message: "Review text is required",
-    });
-  }
+    if (!text) {
+      return res.status(400).json({
+        success: false,
+        message: "Review text is required",
+      });
+    }
 
-  const analysis = analyzeReview(text);
+    const analysis = analyzeReview(text);
 
-  const newReview = {
-    id: reviews.length + 1,
-    text,
-    ...analysis,
-  };
-
-  reviews.push(newReview);
-
-  res.status(201).json({ success: true, data: newReview });
-});
-
-app.put("/api/reviews/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const { text } = req.body;
-
-  const review = reviews.find((item) => item.id === id);
-
-  if (!review) {
-    return res.status(404).json({
-      success: false,
-      message: "Review not found",
-    });
-  }
-
-  if (!text) {
-    return res.status(400).json({
-      success: false,
-      message: "Review text is required",
-    });
-  }
-
-  const analysis = analyzeReview(text);
-
-  review.text = text;
-  review.sentiment = analysis.sentiment;
-  review.theme = analysis.theme;
-  review.response = analysis.response;
-
-  res.status(200).json({ success: true, data: review });
-});
-
-app.delete("/api/reviews/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const index = reviews.findIndex((item) => item.id === id);
-
-  if (index === -1) {
-    return res.status(404).json({
-      success: false,
-      message: "Review not found",
-    });
-  }
-
-  reviews.splice(index, 1);
-
-  res.status(204).send();
-});
-
-app.post("/api/analyze", (req, res) => {
-  const { text } = req.body;
-
-  if (!text) {
-    return res.status(400).json({
-      success: false,
-      message: "Review text is required",
-    });
-  }
-
-  const analysis = analyzeReview(text);
-
-  res.status(200).json({
-    success: true,
-    data: {
+    const newReview = await Review.create({
       text,
       ...analysis,
-    },
-  });
+    });
+
+    res.status(201).json({ success: true, data: newReview });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/api/reviews/:id", async (req, res, next) => {
+  try {
+    const { text } = req.body;
+
+    if (!text) {
+      return res.status(400).json({
+        success: false,
+        message: "Review text is required",
+      });
+    }
+
+    const analysis = analyzeReview(text);
+
+    const updatedReview = await Review.findByIdAndUpdate(
+      req.params.id,
+      { text, ...analysis },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedReview) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found",
+      });
+    }
+
+    res.status(200).json({ success: true, data: updatedReview });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete("/api/reviews/:id", async (req, res, next) => {
+  try {
+    const deletedReview = await Review.findByIdAndDelete(req.params.id);
+
+    if (!deletedReview) {
+      return res.status(404).json({
+        success: false,
+        message: "Review not found",
+      });
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/analyze", async (req, res, next) => {
+  try {
+    const { text } = req.body;
+
+    if (!text) {
+      return res.status(400).json({
+        success: false,
+        message: "Review text is required",
+      });
+    }
+
+    const analysis = analyzeReview(text);
+
+    const newReview = await Review.create({
+      text,
+      ...analysis,
+    });
+
+    res.status(201).json({
+      success: true,
+      data: newReview,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.use((req, res) => {
@@ -217,6 +220,8 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  console.error(err.message);
+
   res.status(500).json({
     success: false,
     message: "Internal server error",

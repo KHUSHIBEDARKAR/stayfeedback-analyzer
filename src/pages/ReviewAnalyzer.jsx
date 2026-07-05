@@ -9,11 +9,18 @@ export default function ReviewAnalyzer() {
 
   const API_URL = "http://localhost:5000";
 
+  async function loadReviews() {
+    try {
+      const res = await fetch(`${API_URL}/api/reviews`);
+      const data = await res.json();
+      setReviews(data.data || []);
+    } catch {
+      setError("Failed to load reviews from backend");
+    }
+  }
+
   useEffect(() => {
-    fetch(`${API_URL}/api/reviews`)
-      .then((res) => res.json())
-      .then((data) => setReviews(data.data))
-      .catch(() => setError("Failed to load reviews from backend"));
+    loadReviews();
   }, []);
 
   async function handleAnalyze() {
@@ -36,6 +43,8 @@ export default function ReviewAnalyzer() {
 
       const data = await res.json();
       setAnalysis(data.data);
+      setText("");
+      loadReviews();
     } catch {
       setError("Backend connection failed");
     } finally {
@@ -61,10 +70,9 @@ export default function ReviewAnalyzer() {
         onClick={handleAnalyze}
         className="bg-teal-700 text-white px-6 py-3 rounded-lg hover:bg-teal-800"
       >
-        Analyze Review
+        {loading ? "Analyzing..." : "Analyze Review"}
       </button>
 
-      {loading && <p className="mt-4 text-blue-600">Loading...</p>}
       {error && <p className="mt-4 text-red-600">{error}</p>}
 
       {analysis && (
@@ -83,7 +91,7 @@ export default function ReviewAnalyzer() {
 
       <div className="grid gap-4">
         {reviews.map((review) => (
-          <div key={review.id} className="bg-gray-100 p-4 rounded-lg">
+          <div key={review._id} className="bg-gray-100 p-4 rounded-lg">
             <p>{review.text}</p>
             <p className="text-sm text-gray-600">
               {review.sentiment} | {review.theme}
