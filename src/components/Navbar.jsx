@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Navbar() {
+  const { dark, setDark } = useTheme();
+
   return (
-    <nav className="bg-gradient-to-r from-teal-900 to-green-600 text-white px-4 md:px-12 py-4 flex justify-between items-center">
+    <nav className="bg-gradient-to-r from-teal-900 to-green-600 text-white px-4 md:px-12 py-4 flex flex-wrap justify-between items-center gap-4">
 
       <h1 className="text-2xl md:text-4xl font-bold">
         🤖 Homestay AI
@@ -17,6 +20,13 @@ export default function Navbar() {
         <Link to="/dashboard">Dashboard</Link>
 
         <Link to="/analyzer">Analyzer</Link>
+
+        <button
+          onClick={() => setDark(!dark)}
+          className="bg-white text-teal-700 px-3 py-1 rounded-lg font-semibold"
+        >
+          {dark ? "☀️ Light" : "🌙 Dark"}
+        </button>
 
         <Link
           to="/login"

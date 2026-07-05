@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import { ThemeProvider } from "./context/ThemeContext";
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -11,24 +13,26 @@ import ReviewAnalyzer from "./pages/ReviewAnalyzer";
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <div className="min-h-screen flex flex-col">
+    <ThemeProvider>
+      <BrowserRouter>
+        <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-950 transition-colors">
 
-        <Navbar />
+          <Navbar />
 
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/analyzer" element={<ReviewAnalyzer />} />
-          </Routes>
-        </main>
+          <main className="flex-grow">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/analyzer" element={<ReviewAnalyzer />} />
+            </Routes>
+          </main>
 
-        <Footer />
+          <Footer />
 
-      </div>
-    </BrowserRouter>
+        </div>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
