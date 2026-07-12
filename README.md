@@ -203,11 +203,3 @@ npm run dev
 7. Logout removes the token and redirects to the Login page.
 
 ---
-
-## Author
-
-**Khushi Bedarkar**
-
-TBI-GEU Summer Internship
-
-AI-Assisted Full Stack Web Development
