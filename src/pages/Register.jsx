@@ -1,13 +1,12 @@
 import { useState } from "react";
 
-export default function Login() {
+export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
 
-  async function handleLogin() {
+  async function handleRegister() {
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -19,14 +18,10 @@ export default function Login() {
       });
 
       const data = await response.json();
+
       if (response.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        alert("Login Successful");
-        window.location.href = "/dashboard";
-      }
-      
-      else {
+        alert("Registration Successful");
+      } else {
         alert(data.message);
       }
     } catch (error) {
@@ -36,7 +31,7 @@ export default function Login() {
 
   return (
     <div className="max-w-md mx-auto mt-10 bg-white shadow-lg rounded-lg p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">Login</h1>
+      <h1 className="text-3xl font-bold text-center mb-6">Register</h1>
 
       <input
         type="email"
@@ -55,19 +50,19 @@ export default function Login() {
       />
 
       <button
-        onClick={handleLogin}
-        className="w-full bg-blue-600 text-white py-2 rounded-md"
+        onClick={handleRegister}
+        className="w-full bg-green-600 text-white py-2 rounded-md"
       >
-        Login
+        Register
       </button>
 
       <p className="text-center mt-4 text-sm text-gray-600">
-        Don't have an account?{" "}
+        Already have an account?{" "}
         <a
-          href="/register"
-          className="text-blue-600 font-semibold hover:underline"
+          href="/login"
+          className="text-green-600 font-semibold hover:underline"
         >
-          Sign Up
+          Login
         </a>
       </p>
     </div>

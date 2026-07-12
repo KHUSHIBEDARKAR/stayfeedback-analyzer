@@ -2,8 +2,14 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
+const passport = require("passport");
+const session = require("express-session");
+require("./config/passport");
+
 const connectDB = require("./config/db");
 const Review = require("./models/Review");
+const authRoutes = require("./routes/authRoutes");
+const verifyToken = require("./middleware/verifyToken");
 
 const app = express();
 
@@ -14,6 +20,37 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 app.use(cors({ origin: FRONTEND_URL }));
 app.use(express.json());
+
+app.use(
+  session({
+    secret: process.env.JWT_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use("/api/auth", authRoutes);
+
+app.get(
+  "/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  })
+);
+
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/login",
+    session: true,
+  }),
+  (req, res) => {
+    res.send("Google Login Successful");
+  }
+);
 
 function analyzeReview(text) {
   const lower = text.toLowerCase();
@@ -65,7 +102,7 @@ app.get("/", (req, res) => {
   res.status(200).json({ message: "Homestay Review Classifier API is running" });
 });
 
-app.get("/api/reviews", async (req, res, next) => {
+app.get("/api/reviews", verifyToken, async (req, res, next) => {
   try {
     const reviews = await Review.find().sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: reviews });

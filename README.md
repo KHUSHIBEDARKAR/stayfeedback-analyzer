@@ -1,29 +1,45 @@
-# Homestay Review Sentiment Classifier
+# Homestay Review Analyzer
 
-A full-stack web application that analyzes homestay guest reviews, classifies their sentiment, identifies the review theme, and suggests a management response. Reviews are permanently stored in MongoDB Atlas for persistent data management.
+An AI-powered full-stack web application developed as part of the TBI-GEU Summer Internship. The application analyzes homestay reviews, classifies sentiment and themes, stores reviews in MongoDB, and provides secure user authentication using JWT and Google OAuth.
 
 ---
 
 ## Features
 
-- Analyze guest reviews
-- Sentiment Classification (Positive, Neutral, Negative)
-- Theme Detection (Food, Host, Location, Cleanliness, Value, Experience)
-- AI-based Suggested Management Response
-- MongoDB Atlas Database Integration
-- Complete CRUD Operations
+### Review Analysis
+- Analyze homestay reviews
+- Detect sentiment (Positive, Neutral, Negative)
+- Identify review themes
+- Generate automatic responses
+- Store analyzed reviews in MongoDB
+
+### Authentication & Security
+- User Registration
+- User Login
+- JWT Authentication
+- Google OAuth Login
+- Protected Routes
+- Password Hashing using bcrypt
+- Rate Limiting
+- Input Validation
+- Logout Functionality
+
+### CRUD Operations
+- Create Review
+- View Reviews
+- Update Review
+- Delete Review
 - Search Reviews
-- Responsive React Frontend
 
 ---
 
 ## Tech Stack
 
 ### Frontend
-- React.js
+- React
 - Vite
+- React Router
 - Tailwind CSS
-- React Router DOM
 
 ### Backend
 - Node.js
@@ -31,145 +47,167 @@ A full-stack web application that analyzes homestay guest reviews, classifies th
 
 ### Database
 - MongoDB Atlas
-- Mongoose ODM
+- Mongoose
+
+### Authentication
+- JWT
+- bcryptjs
+- Passport.js
+- Google OAuth 2.0
 
 ---
 
 ## Project Structure
 
-```text
-homestay-review-classifier/
+```
+homestay-review-classifier
 │
-├── src/
-│   ├── components/
-│   ├── pages/
+├── backend
+│   ├── config
+│   ├── middleware
+│   ├── models
+│   ├── routes
+│   ├── server.js
+│   └── .env
+│
+├── src
+│   ├── components
+│   ├── context
+│   ├── pages
 │   ├── App.jsx
 │   └── main.jsx
-│
-├── backend/
-│   ├── config/
-│   ├── models/
-│   ├── .env.example
-│   ├── server.js
-│   └── package.json
 │
 └── README.md
 ```
 
 ---
 
-## Database Choice
+## API Endpoints
 
-MongoDB Atlas was chosen because the application stores review data in a flexible document format. Mongoose ODM is used to define schemas and interact with the MongoDB database efficiently.
+### Authentication
+
+| Method | Endpoint |
+|---------|----------|
+| POST | /api/auth/register |
+| POST | /api/auth/login |
+
+### Reviews
+
+| Method | Endpoint |
+|---------|----------|
+| GET | /api/reviews |
+| GET | /api/reviews/:id |
+| POST | /api/reviews |
+| PUT | /api/reviews/:id |
+| DELETE | /api/reviews/:id |
+| GET | /api/reviews/search?q=keyword |
+| POST | /api/analyze |
+
+---
+
+## Security Features
+
+- JWT Authentication
+- Password Hashing
+- Google OAuth
+- Protected Routes
+- Input Validation
+- Rate Limiting
+- Secure Environment Variables
 
 ---
 
 ## Database Schema
 
-The application uses a single MongoDB collection named **Review**.
+### Review
 
-### Review Schema
+- _id
+- text
+- sentiment
+- theme
+- response
+- createdAt
+- updatedAt
 
-| Field | Type |
-|------|------|
-| _id | ObjectId |
-| text | String |
-| sentiment | String |
-| theme | String |
-| response | String |
-| createdAt | Date |
-| updatedAt | Date |
+### User
 
-**Schema Diagram:** Refer to **W5_SchemaDiagram_TBI-26101359.pdf**.
+- _id
+- email
+- password
+- createdAt
+- updatedAt
 
 ---
 
-## Backend Setup
+## Installation
 
-### 1. Navigate to the backend folder
+### Clone Repository
+
+```bash
+git clone https://github.com/KHUSHIBEDARKAR/stayfeedback-analyzer.git
+```
+
+### Install Frontend
+
+```bash
+npm install
+```
+
+### Install Backend
 
 ```bash
 cd backend
-```
-
-### 2. Install dependencies
-
-```bash
 npm install
 ```
 
-### 3. Create a `.env` file
+### Create .env
 
 ```env
 PORT=5000
-FRONTEND_URL=http://localhost:<VITE_PORT>
-MONGO_URI=your_mongodb_connection_string
+MONGO_URI=YOUR_MONGODB_CONNECTION_STRING
+FRONTEND_URL=http://localhost:5173
+JWT_SECRET=YOUR_SECRET_KEY
+GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET
 ```
 
-### 4. Start the backend server
+> Do **not** commit your `.env` file to GitHub.
+
+---
+
+## Run Frontend
 
 ```bash
 npm run dev
 ```
 
-Backend runs at:
-
-```
-http://localhost:5000
-```
-
 ---
 
-## Frontend Setup
-
-From the project root directory:
+## Run Backend
 
 ```bash
-npm install
+cd backend
 npm run dev
 ```
 
-Frontend runs at:
+---
 
-```
-http://localhost:<VITE_PORT>
-```
+## Authentication Flow
 
-> Replace `<VITE_PORT>` with the port displayed by Vite (for example: 5173, 5180, or 5181).
+1. Register a new account.
+2. Login using email and password.
+3. JWT token is generated.
+4. Token is stored in Local Storage.
+5. Protected routes require authentication.
+6. Google OAuth login is also supported.
+7. Logout removes the token and redirects to the Login page.
 
 ---
 
-## API Endpoints
+## Author
 
-| Method | Endpoint | Description |
-|---------|----------|-------------|
-| GET | `/api/reviews` | Retrieve all reviews |
-| GET | `/api/reviews/:id` | Retrieve a review by ID |
-| POST | `/api/reviews` | Create a new review |
-| PUT | `/api/reviews/:id` | Update an existing review |
-| DELETE | `/api/reviews/:id` | Delete a review |
-| GET | `/api/reviews/search?q=keyword` | Search reviews by keyword |
-| POST | `/api/analyze` | Analyze and save a review |
+**Khushi Bedarkar**
 
----
+TBI-GEU Summer Internship
 
-## Environment Variables
-
-Create a `.env` file inside the `backend` directory.
-
-Example:
-
-```env
-PORT=5000
-FRONTEND_URL=http://localhost:<VITE_PORT>
-MONGO_URI=your_mongodb_connection_string
-```
-
-A sample configuration is also provided in `.env.example`.
-
-
----
-
-## License
-
-This project was developed as part of the AI Assisted Full Stack Web Development Summer Internship Program for educational purposes.
+AI-Assisted Full Stack Web Development
