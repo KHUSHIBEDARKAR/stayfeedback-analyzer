@@ -39,14 +39,7 @@ export default function App() {
 
               <Route path="/register" element={<Register />} />
 
-              <Route
-                path="/analyzer"
-                element={
-                  <ProtectedRoute>
-                    <ReviewAnalyzer />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/analyzer" element={<ReviewAnalyzer />} />
             </Routes>
           </main>
 
