@@ -9,6 +9,7 @@ require("./config/passport");
 const connectDB = require("./config/db");
 const Review = require("./models/Review");
 const authRoutes = require("./routes/authRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 const verifyToken = require("./middleware/verifyToken");
 
 const app = express();
@@ -18,7 +19,18 @@ connectDB();
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
-app.use(cors({ origin: FRONTEND_URL }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || origin.startsWith("http://localhost:")) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.use(
@@ -33,6 +45,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.get(
   "/auth/google",
