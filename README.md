@@ -535,19 +535,4 @@ Developed a full-stack AI application using React, Node.js, Express, MongoDB, an
 - Developed and tested REST APIs for authentication, AI analysis, search, and complete review CRUD operations.
 - Designed a responsive dark/light user interface using React, Vite, and Tailwind CSS.
 
----
 
-## Author
-
-**Khushi Bedarkar**
-
-- GitHub: `KHUSHIBEDARKAR`
-- Project: Homestay Review Analyzer
-- Internship: TBI-GEU Summer Internship
-- Intern ID: `TBI-26101359`
-
----
-
-## License
-
-This project was developed for educational and internship purposes.
