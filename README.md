@@ -535,4 +535,4 @@ Developed a full-stack AI application using React, Node.js, Express, MongoDB, an
 - Developed and tested REST APIs for authentication, AI analysis, search, and complete review CRUD operations.
 - Designed a responsive dark/light user interface using React, Vite, and Tailwind CSS.
 
-
+This project demonstrates modern full-stack development practices combined with Generative AI integration for educational and portfolio purposes.
