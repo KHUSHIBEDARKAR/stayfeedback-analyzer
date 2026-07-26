@@ -572,3 +572,6 @@ Developed a full-stack AI application using React, Node.js, Express, MongoDB, an
 - Designed a responsive dark/light user interface using React, Vite, and Tailwind CSS.
 
 This project demonstrates modern full-stack development practices combined with Generative AI integration for educational and portfolio purposes.
+## Acknowledgements
+
+Developed during the TBI-GEU Summer Internship.
