@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -7,7 +9,7 @@ export default function Login() {
 
   async function handleLogin() {
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -19,14 +21,13 @@ export default function Login() {
       });
 
       const data = await response.json();
+
       if (response.ok) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         alert("Login Successful");
         window.location.href = "/dashboard";
-      }
-      
-      else {
+      } else {
         alert(data.message);
       }
     } catch (error) {
@@ -34,42 +35,5 @@ export default function Login() {
     }
   }
 
-  return (
-    <div className="max-w-md mx-auto mt-10 bg-white shadow-lg rounded-lg p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">Login</h1>
-
-      <input
-        type="email"
-        placeholder="Enter your email"
-        className="w-full border rounded-md p-2 mb-4"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-
-      <input
-        type="password"
-        placeholder="Enter your password"
-        className="w-full border rounded-md p-2 mb-4"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-
-      <button
-        onClick={handleLogin}
-        className="w-full bg-blue-600 text-white py-2 rounded-md"
-      >
-        Login
-      </button>
-
-      <p className="text-center mt-4 text-sm text-gray-600">
-        Don't have an account?{" "}
-        <a
-          href="/register"
-          className="text-blue-600 font-semibold hover:underline"
-        >
-          Sign Up
-        </a>
-      </p>
-    </div>
-  );
+  // Rest of your code...
 }
