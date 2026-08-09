@@ -40,26 +40,20 @@ const uniqueOrigins = [...new Set(allowedOrigins)];
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow requests without an origin
-      // (Postman, server-to-server requests, etc.)
-      if (!origin) {
-        return callback(null, true);
+    origin: function (origin, callback) {
+      if (!origin || uniqueOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.error("CORS blocked:", origin);
+        callback(new Error("Not allowed by CORS"));
       }
-
-      if (uniqueOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      console.error(`CORS blocked for origin: ${origin}`);
-
-      return callback(
-        new Error(`CORS blocked for origin: ${origin}`)
-      );
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 
 app.use(express.json());
 
