@@ -1,91 +1,102 @@
-# Homestay Review Analyzer
+# StayFeedback Analyzer
 
-An AI-powered full-stack web application developed as part of the **TBI-GEU Summer Internship**.
+**StayFeedback Analyzer** is an AI-powered full-stack web application that helps homestay businesses understand guest feedback quickly. It analyzes guest reviews using Google Gemini AI and presents useful insights such as sentiment, review theme, summary, suggested host response, and improvement suggestions.
 
-The application analyzes homestay guest reviews, classifies sentiment and themes, generates AI-powered summaries and professional host responses, stores review data in MongoDB, and provides secure authentication using JWT.
+This project was developed as part of the **TBI-GEU AI-Assisted Full Stack Web Development Internship**.
 
 ---
 
-## Project Overview
+## 1. Live Project
 
-The Homestay Review Analyzer helps homestay owners understand guest feedback quickly.
+**Frontend:** https://stayfeedback-analyzer.vercel.app
 
-Users can enter a guest review, and the application uses Google Gemini AI to generate:
+**GitHub Repository:** https://github.com/KHUSHIBEDARKAR/stayfeedback-analyzer
+
+**Backend:** https://stayfeedback-analyzer.onrender.com
+
+---
+
+## 2. Problem Statement
+
+Homestay businesses receive guest reviews that contain useful information about cleanliness, food, hosts, location, service, and the overall stay.
+
+Reading and analysing every review manually can be time-consuming, and important feedback may be missed.
+
+StayFeedback Analyzer was built to make this process easier by using AI to convert unstructured guest reviews into simple, actionable information.
+
+---
+
+## 3. What the Application Does
+
+A user can enter a guest review and receive an AI-generated analysis.
+
+For example, a review such as:
+
+> "The room was very clean and comfortable. The host was friendly and helpful, but the food quality could be improved."
+
+can be analysed to provide:
 
 - Sentiment
-- Main review theme
-- Short review summary
+- Main theme
+- Short summary
 - Professional host response
-- Practical improvement suggestion
+- Improvement suggestion
 
-The project also includes authentication, protected routes, MongoDB persistence, CRUD operations, responsive design, and dark/light mode.
+The application also allows authenticated users to manage saved reviews through CRUD operations.
 
 ---
 
-## Features
+## 4. Features
 
-### Review Analysis
+### Review Management
 
-- Analyze homestay reviews
-- Detect sentiment:
-  - Positive
-  - Neutral
-  - Negative
-- Identify review themes
-- Generate automatic responses
-- Store analyzed reviews in MongoDB
-- Display saved reviews
+- Create reviews
+- View saved reviews
+- View review details
+- Update reviews
+- Delete reviews
+- Search reviews
+- Store review data in MongoDB
 
-### AI Features — Week 7
-
-The application uses **Google Gemini AI** to provide intelligent and actionable review analysis.
+### AI Review Analysis
 
 - Google Gemini AI integration
-- AI sentiment analysis
-- Theme detection
+- Sentiment analysis
+- Main theme detection
 - AI-generated review summary
-- Professional host response generation
-- Practical improvement suggestions
-- Real-time AI analysis
-- Structured JSON output
-- Loading state during AI processing
+- Professional host response
+- Practical improvement suggestion
+- Structured AI response
+- Loading state while analysis is running
 - Error handling for failed AI requests
 
-### Authentication and Security
+### Authentication & Security
 
 - User registration
 - User login
 - JWT authentication
-- Protected frontend routes
-- Protected backend API routes
+- Protected routes
 - Password hashing using bcrypt
-- Rate limiting
 - Input validation
-- Logout functionality
+- Rate limiting
+- Google authentication
 - Secure environment variables
+- CORS configuration
 
-### CRUD Operations
+### Dashboard & UI
 
-- Create review
-- View all reviews
-- View a single review
-- Update review
-- Delete review
-- Search reviews
-
-### User Interface
-
-- Responsive React interface
-- Tailwind CSS styling
-- Dark mode
-- Light mode
-- Reusable UI components
-- Loading indicator
-- Error messages
+- Review statistics
+- Sentiment distribution
+- Theme distribution
+- Monthly review trend
+- Recent reviews
+- Responsive interface
+- Dark/light mode
+- Reusable React components
 
 ---
 
-## Tech Stack
+## 5. Tech Stack
 
 ### Frontend
 
@@ -94,85 +105,151 @@ The application uses **Google Gemini AI** to provide intelligent and actionable 
 - React Router
 - Tailwind CSS
 - JavaScript
+- Recharts
 - Fetch API
+
+**Why:** React provides reusable components and a clean way to build the application's pages and user interactions. Vite provides a fast development environment, while Tailwind CSS was used for responsive styling.
 
 ### Backend
 
 - Node.js
 - Express.js
-- REST API
-- Google Gemini API
+- REST APIs
+
+**Why:** Express provides a simple and reliable way to build the backend APIs and connect the frontend with the database and AI service.
 
 ### Database
 
 - MongoDB Atlas
 - Mongoose
 
-### Authentication and Security
+**Why:** MongoDB provides flexible document-based storage and works well with the review data used by this application. MongoDB Atlas also provides cloud-hosted persistence.
 
-- JSON Web Token
-- bcryptjs
+### Authentication & Security
+
+- JSON Web Token (JWT)
+- bcrypt/bcryptjs
 - express-validator
 - express-rate-limit
 - Passport.js
 - Express Session
 
-### Development Tools
+### AI
 
-- Git
-- GitHub
-- VS Code
-- Postman
-- Chrome DevTools
+- Google Gemini API
+
+**Why:** Gemini is used to understand guest reviews and generate structured, useful feedback for homestay management.
+
+### Deployment
+
+- Vercel — Frontend
+- Render — Backend
+- MongoDB Atlas — Database
 
 ---
 
-## Project Structure
+## 6. Screenshots
+
+The following screenshots show the main parts of the application.
+
+### Home Page
+
+![Home Page](./screenshots/01_Homepage.png)
+
+### Dashboard
+
+![Dashboard](./screenshots/03_Dashboard.png)
+
+### AI Review Analyzer
+
+![AI Analysis](./screenshots/04_AI_Analysis.png)
+
+### API Testing
+
+![API Test](./screenshots/05_API_Test_200OK.png)
+
+---
+
+## 7. Application Architecture
+
+The application follows a simple full-stack architecture:
 
 ```text
-homestay-review-classifier
+                    User
+                      |
+                      v
+             React Frontend
+                 (Vercel)
+                      |
+                      v
+              Express REST API
+                 (Render)
+                /          \
+               /            \
+              v              v
+       MongoDB Atlas      Gemini API
+          Database             AI
+```
+
+### Application Flow
+
+1. The user opens the React application.
+2. The user registers or logs in.
+3. Authentication protects user-specific features.
+4. The user manages guest reviews through the dashboard.
+5. A review can be submitted to the AI analyzer.
+6. The frontend sends the review to the Express backend.
+7. The backend securely communicates with Gemini.
+8. Gemini returns structured analysis.
+9. The backend sends the result back to the frontend.
+10. The frontend displays the sentiment, theme, summary, host response, and improvement suggestion.
+
+---
+
+## 8. Project Structure
+
+```text
+stayfeedback-analyzer/
 │
-├── backend
-│   ├── config
+├── backend/
+│   ├── config/
 │   │   ├── db.js
 │   │   └── passport.js
 │   │
-│   ├── middleware
+│   ├── middleware/
 │   │   └── verifyToken.js
 │   │
-│   ├── models
+│   ├── models/
 │   │   ├── Review.js
 │   │   └── User.js
 │   │
-│   ├── routes
+│   ├── routes/
 │   │   ├── authRoutes.js
 │   │   └── aiRoutes.js
 │   │
-│   ├── .env
 │   ├── .env.example
 │   ├── package.json
 │   └── server.js
 │
-├── docs
+├── docs/
 │   └── schema.png
 │
-├── public
+├── public/
 │
-├── src
-│   ├── assets
-│   │
-│   ├── components
-│   │   ├── ui
+├── src/
+│   ├── assets/
+│   ├── components/
+│   │   ├── ui/
 │   │   ├── Card.jsx
 │   │   ├── Footer.jsx
 │   │   ├── Hero.jsx
 │   │   ├── Navbar.jsx
 │   │   └── ProtectedRoute.jsx
 │   │
-│   ├── context
+│   ├── context/
 │   │   └── ThemeContext.jsx
 │   │
-│   ├── pages
+│   ├── pages/
 │   │   ├── About.jsx
 │   │   ├── Dashboard.jsx
 │   │   ├── Home.jsx
@@ -184,278 +261,233 @@ homestay-review-classifier
 │   ├── main.jsx
 │   └── index.css
 │
+├── screenshots/
+│   ├── 01_Homepage.png
+│   ├── 03_Dashboard.png
+│   ├── 04_AI_Analysis.png
+│   └── 05_API_Test_200OK.png
+│
 ├── PROMPTS.md
 ├── README.md
 ├── package.json
 └── vite.config.js
 ```
 
+> Keep this section synchronized with the actual repository structure if a folder or file has a different name.
+
 ---
 
-## API Endpoints
+## 9. API Documentation
 
-### Authentication
+The application uses REST APIs for authentication, review management, and AI analysis.
 
-| Method | Endpoint | Description |
+### Authentication APIs
+
+| Method | Endpoint | Purpose |
 |---|---|---|
 | POST | `/api/auth/register` | Register a new user |
-| POST | `/api/auth/login` | Login and receive a JWT token |
+| POST | `/api/auth/login` | Login and receive authentication information |
 
-### Reviews
+### Review APIs
 
-| Method | Endpoint | Description |
+| Method | Endpoint | Purpose |
 |---|---|---|
-| GET | `/api/reviews` | Get all reviews |
-| GET | `/api/reviews/:id` | Get one review |
-| POST | `/api/reviews` | Create a new review |
+| GET | `/api/reviews` | Get reviews |
+| GET | `/api/reviews/:id` | Get a single review |
+| POST | `/api/reviews` | Create a review |
 | PUT | `/api/reviews/:id` | Update a review |
 | DELETE | `/api/reviews/:id` | Delete a review |
 | GET | `/api/reviews/search?q=keyword` | Search reviews |
-| POST | `/api/analyze` | Analyze and save a review using the basic analyzer |
 
-### AI
+### AI API
 
-| Method | Endpoint | Description |
+| Method | Endpoint | Purpose |
 |---|---|---|
-| POST | `/api/ai/analyze` | Analyze a guest review using Google Gemini AI |
+| POST | `/api/ai/analyze` | Analyse a guest review using Gemini AI |
 
 ---
 
-## AI Review Analysis
+## 10. AI Feature
 
-### Endpoint
+### Gemini-Powered Review Analysis
 
-```http
-POST /api/ai/analyze
-```
+The main AI feature is the **AI Homestay Review Analyzer**.
 
-### Sample Request
+### Example Input
 
 ```json
 {
-  "review": "The room was clean and peaceful, but the breakfast was served late."
+  "review": "The room was very clean and comfortable. The host was friendly and helpful, but the food quality could be improved."
 }
 ```
 
-### Sample Response
+### Example Output
 
 ```json
 {
   "success": true,
   "data": {
-    "sentiment": "Neutral",
-    "theme": "food",
-    "summary": "The guest appreciated the clean and peaceful environment but experienced delays in breakfast service.",
-    "hostResponse": "Thank you for your feedback. We are glad you enjoyed the cleanliness and peaceful atmosphere of our homestay. We sincerely apologize for the breakfast delay and will improve our morning service process.",
-    "improvementSuggestion": "Introduce a breakfast scheduling process to improve preparation and delivery time."
+    "sentiment": "Positive",
+    "theme": "experience",
+    "summary": "The guest enjoyed the clean, comfortable room and friendly service, although the food quality could be improved.",
+    "hostResponse": "Thank you for your kind words regarding our room and service. We appreciate your feedback about the food and will work to improve the quality of our meals.",
+    "improvementSuggestion": "Gather specific feedback about the menu items and improve food quality where needed."
   }
 }
 ```
 
----
+The exact AI response can vary depending on the review.
 
-## AI Workflow
+### AI Workflow
 
-1. The user enters a homestay guest review.
-2. The React frontend sends the review to the backend.
-3. The backend receives the request at:
-
-```http
+```text
+Guest Review
+     |
+     v
+React Frontend
+     |
+     v
 POST /api/ai/analyze
+     |
+     v
+Express Backend
+     |
+     v
+Google Gemini API
+     |
+     v
+Structured AI Response
+     |
+     v
+React UI
 ```
 
-4. The backend constructs a structured prompt.
-5. The backend securely calls the Google Gemini API.
-6. Gemini analyzes the guest review.
-7. Gemini returns structured JSON.
-8. The frontend displays:
-   - Sentiment
-   - Main theme
-   - AI summary
-   - Suggested host response
-   - Improvement suggestion
-9. A loading indicator appears while the AI request is processing.
-10. An error message is shown if the request fails.
+The Gemini API key is kept on the backend through environment variables instead of being exposed in the frontend.
 
 ---
 
-## Prompt Engineering
+## 11. Prompt Engineering
 
-The project includes a `PROMPTS.md` file documenting:
+The project contains a `PROMPTS.md` file documenting the prompt development process.
 
-- Three prompt variations
+It includes:
+
+- Prompt variations
 - Prompt structure
-- Expected output
+- Expected AI output
 - Final selected prompt
-- Reason for choosing the final prompt
+- Reason for selecting the final prompt
 
-The final prompt requests valid JSON so the frontend can display the AI result reliably.
-
----
-
-## Security Features
-
-- Passwords are hashed using bcrypt
-- JWT tokens are used for authentication
-- Protected backend routes verify bearer tokens
-- Protected frontend routes redirect unauthenticated users
-- Authentication endpoints use rate limiting
-- Input validation is applied to authentication requests
-- API keys are stored in `.env`
-- `.env` is excluded from GitHub
-- CORS is configured for allowed frontend origins
-- Plain passwords and API keys are never returned to users
+The final prompt asks Gemini to return structured JSON so that the frontend can reliably display the AI results.
 
 ---
 
-## Database Schema
+## 12. Database Schema
 
-### Review
+### User Collection
 
-| Field | Type | Description |
-|---|---|---|
-| `_id` | ObjectId | Unique review ID |
-| `text` | String | Guest review text |
-| `sentiment` | String | Positive, Neutral, or Negative |
-| `theme` | String | Main review category |
-| `response` | String | Suggested response |
-| `createdAt` | Date | Creation timestamp |
-| `updatedAt` | Date | Last update timestamp |
-
-### User
-
-| Field | Type | Description |
+| Field | Type | Purpose |
 |---|---|---|
 | `_id` | ObjectId | Unique user ID |
 | `email` | String | User email |
 | `password` | String | Hashed password |
 | `createdAt` | Date | Creation timestamp |
 | `updatedAt` | Date | Last update timestamp |
----
 
-### Completed Features
+### Review Collection
 
-- Fully connected frontend with Express backend
-- No hardcoded or mock data
-- Authenticated Dashboard
-- Complete CRUD operations
-- AI-powered review analyzer
-- Improved loading states
-- Validation messages
-- Error handling
-- Responsive design (375px, 768px, 1440px)
-- Dashboard statistics
-- Edit/Delete functionality
-- Professional UI improvements
-
-### Testing
-
-✔ Mobile (375px)
-
-✔ Tablet (768px)
-
-✔ Desktop (1440px)
-
-✔ CRUD Operations
-
-✔ Authentication
-
-✔ AI Analysis
-
-✔ Error Handling
-
-✔ API Integration
-
-✔ MongoDB Persistence
+| Field | Type | Purpose |
+|---|---|---|
+| `_id` | ObjectId | Unique review ID |
+| `text` | String | Guest review |
+| `sentiment` | String | Positive, Neutral, or Negative |
+| `theme` | String | Main review theme |
+| `response` | String | Suggested host response |
+| `createdAt` | Date | Creation timestamp |
+| `updatedAt` | Date | Last update timestamp |
 
 ---
 
-## Installation
+## 13. Installation & Setup
 
-### 1. Clone the Repository
+### Prerequisites
+
+Make sure the following are installed:
+
+- Node.js
+- npm
+- Git
+- MongoDB Atlas account
+- Google Gemini API access
+
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/KHUSHIBEDARKAR/stayfeedback-analyzer.git
-```
-
-Move into the project folder:
-
-```bash
 cd stayfeedback-analyzer
 ```
 
-### 2. Install Frontend Dependencies
-
-```bash
-npm install
-```
-
-### 3. Install Backend Dependencies
-
-```bash
-cd backend
-npm install
-```
-
----
-
-## Environment Variables
-
-Create a `.env` file inside the `backend` folder.
-
-```env
-PORT=5000
-MONGO_URI=YOUR_MONGODB_CONNECTION_STRING
-FRONTEND_URL=http://localhost:5173
-JWT_SECRET=YOUR_SECRET_KEY
-GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
-GOOGLE_CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET
-```
-
-Do not commit the `.env` file to GitHub.
-
-Create or update `backend/.env.example` using placeholder values only:
-
-```env
-PORT=5000
-MONGO_URI=YOUR_MONGODB_CONNECTION_STRING
-FRONTEND_URL=http://localhost:5173
-JWT_SECRET=YOUR_SECRET_KEY
-GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
-GOOGLE_CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET
-```
-
----
-
-## Run the Application
-
-You need two terminals.
-
-### Terminal 1 — Run Backend
-
-```bash
-cd backend
-npm run dev
-```
-
-Expected output:
-
-```text
-Server running on http://localhost:5000
-MongoDB connected successfully
-```
-
-### Terminal 2 — Run Frontend
+### 2. Install frontend dependencies
 
 From the project root:
 
 ```bash
+npm install
+```
+
+### 3. Install backend dependencies
+
+```bash
+cd backend
+npm install
+```
+
+### 4. Create environment variables
+
+Create:
+
+```text
+backend/.env
+```
+
+Use your own values:
+
+```env
+PORT=5000
+MONGO_URI=YOUR_MONGODB_CONNECTION_STRING
+FRONTEND_URL=http://localhost:5173
+JWT_SECRET=YOUR_JWT_SECRET
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET
+```
+
+For the deployed backend, use the production frontend URL for `FRONTEND_URL`.
+
+**Never commit `.env` to GitHub.**
+
+### 5. Start the backend
+
+```bash
+cd backend
 npm run dev
 ```
 
-Open the frontend URL shown by Vite, usually:
+The backend normally runs on:
+
+```text
+http://localhost:5000
+```
+
+### 6. Start the frontend
+
+Open another terminal at the project root:
+
+```bash
+npm run dev
+```
+
+Open the local Vite URL shown in the terminal, normally:
 
 ```text
 http://localhost:5173
@@ -463,115 +495,157 @@ http://localhost:5173
 
 ---
 
-## Authentication Flow
+## 14. Security
 
-1. The user registers with an email and password.
-2. The password is hashed before saving to MongoDB.
-3. The user logs in.
-4. The backend verifies the credentials.
-5. A JWT token is returned.
-6. The token is stored in local storage.
-7. Protected routes require a valid token.
-8. Logout removes the token.
-9. The user is redirected to the login page when required.
+The project includes several security measures:
 
----
+- Password hashing
+- JWT authentication
+- Protected routes
+- Input validation
+- Rate limiting
+- CORS configuration
+- Environment variables for secrets
+- `.env` excluded from Git
+- API keys are not exposed in frontend code
 
-## Review Analysis Flow
-
-1. The user opens the Analyzer page.
-2. The user enters a guest review.
-3. The frontend sends the review to the backend.
-4. Gemini analyzes the review.
-5. The frontend displays the result.
-6. The result includes sentiment, theme, summary, response, and improvement suggestion.
+Sensitive credentials should never be committed to the repository.
 
 ---
 
-## Week 7 Deliverables
+## 15. Testing
 
-The following Week 7 requirements are implemented:
+The application was tested across the main user flows.
 
-- AI feature functional on localhost
-- Google Gemini API integrated
-- API key securely stored in `.env`
-- Backend AI service created
-- Frontend connected to AI service
-- Loading state implemented
-- Error handling implemented
-- AI API tested in Postman
-- Browser Network tab shows `POST /api/ai/analyze` with `200 OK`
-- Three prompt variations documented in `PROMPTS.md`
-- Git commit created for the AI feature
+### UI Testing
 
-Required screenshot PDF:
+- Desktop layout
+- Tablet layout
+- Mobile layout
+- Login flow
+- Dashboard
+- Review analyzer
+- Dark/light mode
+
+### Backend Testing
+
+- Authentication APIs
+- Review CRUD APIs
+- Search API
+- AI analysis API
+- MongoDB persistence
+
+### AI Testing
+
+The AI endpoint was tested using Postman.
+
+A successful test returned:
 
 ```text
-W7_AIFeatureDemo_TBI-26101359.pdf
+200 OK
 ```
 
-The PDF should contain:
-
-1. User input screen
-2. Loading state
-3. Final AI-generated output
-4. Browser Network tab showing `POST /api/ai/analyze` with status `200 OK`
+with structured AI analysis containing sentiment, theme, summary, host response, and improvement suggestion.
 
 ---
 
-## Key Learning Outcomes
+## 16. Deployment
 
-- Full-stack application development
-- React frontend development
-- REST API design
-- MongoDB integration
-- JWT authentication
-- Password security
-- API key management
-- Generative AI integration
-- Prompt engineering
-- AI response parsing
-- Error handling
-- Postman API testing
-- Git and GitHub workflow
+### Frontend
+
+The React frontend is deployed on **Vercel**.
+
+Live URL:
+
+https://stayfeedback-analyzer.vercel.app
+
+### Backend
+
+The Express backend is deployed on **Render**.
+
+Live backend URL:
+
+**Add your actual Render URL here.**
+
+### Database
+
+MongoDB Atlas is used as the cloud database.
+
+### Production Configuration
+
+The deployment uses environment variables for:
+
+- Database connection
+- JWT secret
+- Gemini API key
+- Google OAuth credentials
+- Frontend URL
+
+The frontend communicates with the deployed backend through the configured API URL.
 
 ---
 
-## Future Enhancements
+## 17. Known Limitations
 
-- AI confidence score
-- Urgency classification
+- AI results depend on the availability and response of the Gemini API.
+- AI-generated responses should be reviewed by a human before being used as official communication.
+- Free-tier hosting can have cold-start delays after inactivity.
+- AI API usage may be affected by provider rate limits.
+- More advanced analytics can be added in future versions.
+
+---
+
+## 18. Future Improvements
+
+Possible future improvements include:
+
 - Multi-language review analysis
-- Review analytics dashboard
-- Sentiment distribution charts
-- Theme-based filtering
-- Admin dashboard
-- Export reviews as CSV or PDF
-- Email notifications
-- AI response editing
 - Batch review analysis
-- Production deployment
+- Advanced sentiment classification
+- Review trend prediction
+- More detailed analytics
+- Admin dashboard
+- CSV/PDF report export
+- Email notifications
+- AI confidence scoring
+- Automated monthly reports
+- Improved search and filtering
 - Unit and integration testing
 
 ---
 
-## Resume Description
+## 19. Internship Learning Reflection
 
-**AI-Powered Homestay Review Intelligence System**
+This project gave me practical experience in building a complete full-stack application instead of working only on individual technologies.
 
-Developed a full-stack AI application using React, Node.js, Express, MongoDB, and Google Gemini API. Implemented AI-powered sentiment analysis, theme detection, review summarization, professional host response generation, and improvement recommendations. Added JWT authentication, password hashing, protected routes, CRUD operations, responsive design, dark/light mode, secure environment-variable management, and REST API testing using Postman.
+During the internship, I learned how to connect a React frontend with an Express backend, store application data in MongoDB, implement authentication, build and test REST APIs, integrate a generative AI service, and deploy the application to the cloud.
+
+One of the most useful parts of the internship was learning how to debug real application issues such as CORS configuration, environment variables, database connectivity, authentication and deployment problems.
+
+Overall, the internship helped me understand how different parts of a modern web application work together as one complete product.
 
 ---
 
-## Resume Bullet Points
+## 20. Credits & Acknowledgements
 
-- Built an AI-powered homestay review intelligence platform using React, Node.js, Express, MongoDB, and Google Gemini API.
-- Integrated generative AI to classify sentiment, detect themes, summarize guest feedback, generate professional host responses, and recommend operational improvements.
-- Implemented JWT authentication, bcrypt password hashing, protected routes, input validation, rate limiting, and secure API-key management.
-- Developed and tested REST APIs for authentication, AI analysis, search, and complete review CRUD operations.
-- Designed a responsive dark/light user interface using React, Vite, and Tailwind CSS.
+This project was developed as part of the **TBI-GEU AI-Assisted Full Stack Web Development Internship**.
 
-This project demonstrates modern full-stack development practices combined with Generative AI integration for educational and portfolio purposes.
-## Acknowledgements
+I used official documentation, learning resources, development tools, and AI-assisted tools during the development and debugging process.
 
-Developed during the TBI-GEU Summer Internship.
+Special thanks to the TBI-GEU Skill Development Team for providing the internship structure and weekly development tasks.
+
+---
+
+## 21. Author
+
+**Khushi Bedarkar**
+
+B.Tech — Computer Science & Engineering (AI & ML)
+
+Graphic Era (Deemed to be University), Dehradun
+
+**GitHub:**  
+https://github.com/KHUSHIBEDARKAR/stayfeedback-analyzer
+
+**Live Project:**  
+https://stayfeedback-analyzer.vercel.app
