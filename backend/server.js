@@ -10,7 +10,12 @@ const connectDB = require("./config/db");
 const Review = require("./models/Review");
 const authRoutes = require("./routes/authRoutes");
 const aiRoutes = require("./routes/aiRoutes");
-const verifyToken = require("./middleware/verifyToken");
+const analyticsRoutes = require("./routes/analyticsRoutes");
+const {
+  verifyToken,
+  verifyAdmin,
+  verifyCustomer,
+} = require("./middleware/verifyToken");
 
 const app = express();
 
@@ -22,6 +27,7 @@ const FRONTEND_URL =
 
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:5174",
   "http://localhost:5175",
   FRONTEND_URL,
 ];
@@ -58,6 +64,7 @@ app.use(passport.session());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 app.get(
   "/auth/google",

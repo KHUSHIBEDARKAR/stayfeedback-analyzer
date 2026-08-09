@@ -1,3 +1,7 @@
+import DashboardStats from "../components/charts/DashboardStats";
+import SentimentPieChart from "../components/charts/SentimentPieChart";
+import ThemePieChart from "../components/charts/ThemePieChart";
+import MonthlyLineChart from "../components/charts/MonthlyLineChart";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Loader, Toast } from "../components/ui";
@@ -17,7 +21,8 @@ export default function Dashboard() {
   const [saving, setSaving] = useState(false);
 
   const [deletingId, setDeletingId] = useState(null);
-
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const loadReviews = useCallback(async () => {
     const token = localStorage.getItem("token");
 
@@ -59,29 +64,71 @@ export default function Dashboard() {
   useEffect(() => {
     loadReviews();
   }, [loadReviews]);
+  useEffect(() => {
+  async function loadAnalytics() {
+    try {
+      const token = localStorage.getItem("token");
 
-  const statistics = useMemo(() => {
-    const total = reviews.length;
+      if (!token) {
+        setAnalyticsLoading(false);
+        return;
+      }
 
-    const positive = reviews.filter(
-      (item) => item.sentiment?.toLowerCase() === "positive"
-    ).length;
+      const response = await fetch(
+        `${API_URL}/api/analytics/dashboard`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    const neutral = reviews.filter(
-      (item) => item.sentiment?.toLowerCase() === "neutral"
-    ).length;
+      const data = await response.json();
 
-    const negative = reviews.filter(
-      (item) => item.sentiment?.toLowerCase() === "negative"
-    ).length;
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
+        return;
+      }
 
-    return {
-      total,
-      positive,
-      neutral,
-      negative,
-    };
-  }, [reviews]);
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Failed to load analytics"
+        );
+      }
+
+      setAnalytics(data.data);
+    } catch (error) {
+      console.error("Failed to load analytics:", error);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  }
+
+  loadAnalytics();
+}, [navigate]);
+
+const statistics = useMemo(() => {
+  return {
+    total: analytics?.totalReviews ?? reviews.length,
+    positive:
+      analytics?.sentiment?.positive ??
+      reviews.filter(
+        (item) => item.sentiment?.toLowerCase() === "positive"
+      ).length,
+    neutral:
+      analytics?.sentiment?.neutral ??
+      reviews.filter(
+        (item) => item.sentiment?.toLowerCase() === "neutral"
+      ).length,
+    negative:
+      analytics?.sentiment?.negative ??
+      reviews.filter(
+        (item) => item.sentiment?.toLowerCase() === "negative"
+      ).length,
+  };
+}, [analytics, reviews]);
 
   const recentReviews = useMemo(() => {
     return [...reviews]
@@ -266,23 +313,31 @@ export default function Dashboard() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 dark:text-white sm:px-6 lg:px-8">
-      <section className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-teal-600 dark:text-teal-300">
-            Review Intelligence
-          </p>
+<section className="mb-8 overflow-hidden rounded-3xl bg-gradient-to-r from-teal-700 via-teal-600 to-emerald-600 p-6 text-white shadow-lg sm:p-8">
+  <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p className="text-sm font-semibold uppercase tracking-widest text-teal-100">
+        🏡 Homestay AI • Review Intelligence
+      </p>
 
-          <h1 className="mt-1 text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
-            Dashboard
-          </h1>
+      <h1 className="mt-2 text-3xl font-bold sm:text-4xl">
+        Welcome Back 👋
+      </h1>
 
-          <p className="mt-2 text-gray-600 dark:text-gray-300">
-            Monitor guest feedback and review insights from real data.
-          </p>
-        </div>
+      <p className="mt-3 max-w-2xl text-sm leading-6 text-teal-50 sm:text-base">
+        Analyze guest feedback with AI, understand sentiment and themes,
+        and turn reviews into actionable homestay insights.
+      </p>
+    </div>
 
-        <Button onClick={handleOpenAnalyzer}>Analyze New Review</Button>
-      </section>
+    <Button
+      onClick={handleOpenAnalyzer}
+      className="shrink-0 bg-white text-teal-700 hover:bg-teal-50"
+    >
+      🤖 Analyze New Review
+    </Button>
+  </div>
+</section>
 
       {toast && (
         <div className="mb-6">
@@ -306,35 +361,35 @@ export default function Dashboard() {
         </div>
       )}
 
-      <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        <StatisticCard
-          label="Total Reviews"
-          value={statistics.total}
-          description="All saved guest reviews"
-        />
+      <DashboardStats
+  total={analytics?.totalReviews ?? statistics.total}
+  positive={analytics?.sentiment?.positive ?? statistics.positive}
+  neutral={analytics?.sentiment?.neutral ?? statistics.neutral}
+  negative={analytics?.sentiment?.negative ?? statistics.negative}
+/>
 
-        <StatisticCard
-          label="Positive"
-          value={statistics.positive}
-          description="Guests with positive feedback"
-          valueClassName="text-green-600 dark:text-green-400"
-        />
+<section className="mt-8 grid gap-6 lg:grid-cols-2">
+  <SentimentPieChart
+    positive={analytics?.sentiment?.positive ?? statistics.positive}
+    neutral={analytics?.sentiment?.neutral ?? statistics.neutral}
+    negative={analytics?.sentiment?.negative ?? statistics.negative}
+  />
 
-        <StatisticCard
-          label="Neutral"
-          value={statistics.neutral}
-          description="Balanced or mixed feedback"
-          valueClassName="text-amber-600 dark:text-amber-400"
-        />
+  <ThemePieChart
+    food={analytics?.themes?.food ?? 0}
+    cleanliness={analytics?.themes?.cleanliness ?? 0}
+    location={analytics?.themes?.location ?? 0}
+    host={analytics?.themes?.host ?? 0}
+    value={analytics?.themes?.value ?? 0}
+    experience={analytics?.themes?.experience ?? 0}
+  />
+</section>
 
-        <StatisticCard
-          label="Negative"
-          value={statistics.negative}
-          description="Reviews needing attention"
-          valueClassName="text-red-600 dark:text-red-400"
-        />
-      </section>
-
+<section className="mt-8">
+  <MonthlyLineChart
+    data={analytics?.monthlyTrend ?? []}
+  />
+</section>
       <section className="mt-8 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>

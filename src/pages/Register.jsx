@@ -3,10 +3,34 @@ import { useState } from "react";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Register() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-  async function handleRegister() {
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  async function handleRegister(e) {
+    e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+
     try {
       const response = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
@@ -14,59 +38,131 @@ export default function Register() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
-          password,
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
         }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert("Registration Successful");
+        alert("Registration Successful! Please login.");
+
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          password: "",
+          confirmPassword: "",
+        });
+
+        window.location.href = "/login";
       } else {
-        alert(data.message);
+        alert(data.message || "Registration failed.");
       }
     } catch (error) {
+      console.error(error);
       alert("Server Error");
     }
+
+    setLoading(false);
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white shadow-lg rounded-lg p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">Register</h1>
+    <div className="flex min-h-screen items-center justify-center px-4 py-10">
+      <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-8 shadow-2xl transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900">
 
-      <input
-        type="email"
-        placeholder="Enter your email"
-        className="w-full border rounded-md p-2 mb-4"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+        <h1 className="text-center text-3xl font-bold text-teal-600 dark:text-teal-400">
+          Create Account
+        </h1>
 
-      <input
-        type="password"
-        placeholder="Enter your password"
-        className="w-full border rounded-md p-2 mb-4"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <p className="mt-2 mb-6 text-center text-slate-500 dark:text-slate-400">
+          Join Homestay AI Review Analyzer
+        </p>
 
-      <button
-        onClick={handleRegister}
-        className="w-full bg-green-600 text-white py-2 rounded-md"
-      >
-        Register
-      </button>
+        <form onSubmit={handleRegister}>
 
-      <p className="text-center mt-4 text-sm text-gray-600">
-        Already have an account?{" "}
-        <a
-          href="/login"
-          className="text-green-600 font-semibold hover:underline"
-        >
-          Login
-        </a>
-      </p>
+          <input
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={handleChange}
+            className="mb-4 w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400 dark:focus:border-teal-400 dark:focus:ring-teal-900"
+            required
+          />
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            value={formData.email}
+            onChange={handleChange}
+            className="mb-4 w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400 dark:focus:border-teal-400 dark:focus:ring-teal-900"
+            required
+          />
+
+          <input
+            type="text"
+            name="phone"
+            placeholder="Phone Number (Optional)"
+            value={formData.phone}
+            onChange={handleChange}
+            className="mb-4 w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400 dark:focus:border-teal-400 dark:focus:ring-teal-900"
+          />
+
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            className="mb-4 w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400 dark:focus:border-teal-400 dark:focus:ring-teal-900"
+            required
+          />
+
+          <input
+            type={showPassword ? "text" : "password"}
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            className="mb-2 w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400 dark:focus:border-teal-400 dark:focus:ring-teal-900"
+            required
+          />
+
+          <label className="mb-6 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+            <input
+              type="checkbox"
+              checked={showPassword}
+              onChange={() => setShowPassword(!showPassword)}
+              className="accent-teal-600"
+            />
+            Show Password
+          </label>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-lg bg-gradient-to-r from-teal-600 to-emerald-600 py-3 font-semibold text-white shadow-lg shadow-teal-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-teal-700 hover:to-emerald-700 hover:shadow-teal-500/30 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? "Creating Account..." : "Create Account ✨"}
+          </button>
+
+        </form>
+
+        <p className="mt-6 text-center text-slate-600 dark:text-slate-400">
+          Already have an account?{" "}
+          <a
+            href="/login"
+            className="font-semibold text-teal-600 transition hover:text-emerald-600 hover:underline dark:text-teal-400 dark:hover:text-emerald-400"
+          >
+            Login
+          </a>
+        </p>
+
+      </div>
     </div>
   );
 }

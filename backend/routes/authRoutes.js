@@ -6,6 +6,8 @@ const rateLimit = require("express-rate-limit");
 const User = require("../models/User");
 
 const router = express.Router();
+
+// Rate Limiter
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
@@ -17,19 +19,30 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Register user
+// ================= REGISTER =================
+
 router.post(
   "/register",
   authLimiter,
   [
+    body("name")
+      .trim()
+      .notEmpty()
+      .withMessage("Name is required"),
+
     body("email")
       .isEmail()
-      .withMessage("Please enter a valid email address")
+      .withMessage("Please enter a valid email")
       .normalizeEmail(),
 
     body("password")
       .isLength({ min: 6 })
-      .withMessage("Password must contain at least 6 characters"),
+      .withMessage("Password must be at least 6 characters"),
+
+    body("role")
+      .optional()
+      .isIn(["customer", "admin"])
+      .withMessage("Invalid role"),
   ],
   async (req, res) => {
     try {
@@ -42,36 +55,40 @@ router.post(
         });
       }
 
-      const { email, password } = req.body;
+      const { name, email, password } = req.body;
 
       const existingUser = await User.findOne({ email });
 
       if (existingUser) {
         return res.status(400).json({
           success: false,
-          message: "User with this email already exists",
+          message: "User already exists with this email",
         });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const user = await User.create({
+        name,
         email,
         password: hashedPassword,
+        role: "customer",
       });
 
-      return res.status(201).json({
+      res.status(201).json({
         success: true,
-        message: "User registered successfully",
+        message: "Registration successful",
         user: {
           id: user._id,
+          name: user.name,
           email: user.email,
+          role: user.role,
         },
       });
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("Register Error:", error);
 
-      return res.status(500).json({
+      res.status(500).json({
         success: false,
         message: "Server error while registering user",
       });
@@ -79,14 +96,15 @@ router.post(
   }
 );
 
-// Login user
+// ================= LOGIN =================
+
 router.post(
   "/login",
   authLimiter,
   [
     body("email")
       .isEmail()
-      .withMessage("Please enter a valid email address")
+      .withMessage("Please enter a valid email")
       .normalizeEmail(),
 
     body("password")
@@ -115,12 +133,12 @@ router.post(
         });
       }
 
-      const passwordMatches = await bcrypt.compare(
+      const passwordMatch = await bcrypt.compare(
         password,
         user.password
       );
 
-      if (!passwordMatches) {
+      if (!passwordMatch) {
         return res.status(401).json({
           success: false,
           message: "Invalid email or password",
@@ -131,6 +149,7 @@ router.post(
         {
           userId: user._id,
           email: user.email,
+          role: user.role,
         },
         process.env.JWT_SECRET,
         {
@@ -138,19 +157,22 @@ router.post(
         }
       );
 
-      return res.status(200).json({
+      res.status(200).json({
         success: true,
         message: "Login successful",
         token,
         user: {
           id: user._id,
+          name: user.name,
           email: user.email,
+          role: user.role,
+          profileImage: user.profileImage,
         },
       });
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login Error:", error);
 
-      return res.status(500).json({
+      res.status(500).json({
         success: false,
         message: "Server error while logging in",
       });

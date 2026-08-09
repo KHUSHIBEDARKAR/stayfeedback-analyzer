@@ -219,21 +219,24 @@ export default function ReviewAnalyzer() {
           )}
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={handleAnalyze}
-              disabled={loading}
-              className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-teal-700 px-5 py-3 font-semibold text-white transition hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-200 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-teal-950"
-            >
-              {loading ? (
-                <>
-                  <span className="mr-3 h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                  Analyzing with Gemini AI...
-                </>
-              ) : (
-                "Analyze Review"
-              )}
-            </button>
+          <button
+  type="button"
+  onClick={handleAnalyze}
+  disabled={loading}
+  className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 py-3 font-semibold text-white shadow-lg shadow-teal-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:from-teal-700 hover:to-emerald-700 hover:shadow-teal-500/30 focus:outline-none focus:ring-4 focus:ring-teal-200 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-teal-950"
+>
+  {loading ? (
+    <>
+      <span className="mr-1 h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+      Analyzing with Gemini AI...
+    </>
+  ) : (
+    <>
+      ✨
+      Analyze Review
+    </>
+  )}
+</button>
 
             <button
               type="button"
