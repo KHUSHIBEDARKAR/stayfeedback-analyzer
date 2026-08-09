@@ -11,6 +11,7 @@ const Review = require("./models/Review");
 const authRoutes = require("./routes/authRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
+
 const {
   verifyToken,
   verifyAdmin,
@@ -22,6 +23,7 @@ const app = express();
 connectDB();
 
 const PORT = process.env.PORT || 5000;
+
 const FRONTEND_URL =
   process.env.FRONTEND_URL || "http://localhost:5173";
 
@@ -29,21 +31,31 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
+  "https://stayfeedback-analyzer.vercel.app",
   FRONTEND_URL,
 ];
+
+// Remove duplicate origins
+const uniqueOrigins = [...new Set(allowedOrigins)];
 
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Allow requests without an origin
+      // (Postman, server-to-server requests, etc.)
       if (!origin) {
         return callback(null, true);
       }
 
-      if (allowedOrigins.includes(origin)) {
+      if (uniqueOrigins.includes(origin)) {
         return callback(null, true);
       }
 
-      return callback(new Error(`CORS blocked for origin: ${origin}`));
+      console.error(`CORS blocked for origin: ${origin}`);
+
+      return callback(
+        new Error(`CORS blocked for origin: ${origin}`)
+      );
     },
     credentials: true,
   })
@@ -62,9 +74,17 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+/* =====================================================
+   API ROUTES
+===================================================== */
+
 app.use("/api/auth", authRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/analytics", analyticsRoutes);
+
+/* =====================================================
+   GOOGLE AUTHENTICATION
+===================================================== */
 
 app.get(
   "/auth/google",
@@ -83,6 +103,10 @@ app.get(
     res.send("Google Login Successful");
   }
 );
+
+/* =====================================================
+   REVIEW ANALYSIS
+===================================================== */
 
 function analyzeReview(text) {
   const lower = text.toLowerCase();
@@ -113,173 +137,272 @@ function analyzeReview(text) {
 
   let theme = "experience";
 
-  if (lower.includes("food") || lower.includes("breakfast")) theme = "food";
-  else if (lower.includes("host") || lower.includes("staff")) theme = "host";
-  else if (lower.includes("location") || lower.includes("view")) theme = "location";
-  else if (lower.includes("clean") || lower.includes("dirty") || lower.includes("bathroom")) theme = "cleanliness";
-  else if (lower.includes("price") || lower.includes("money") || lower.includes("value")) theme = "value";
+  if (
+    lower.includes("food") ||
+    lower.includes("breakfast")
+  ) {
+    theme = "food";
+  } else if (
+    lower.includes("host") ||
+    lower.includes("staff")
+  ) {
+    theme = "host";
+  } else if (
+    lower.includes("location") ||
+    lower.includes("view")
+  ) {
+    theme = "location";
+  } else if (
+    lower.includes("clean") ||
+    lower.includes("dirty") ||
+    lower.includes("bathroom")
+  ) {
+    theme = "cleanliness";
+  } else if (
+    lower.includes("price") ||
+    lower.includes("money") ||
+    lower.includes("value")
+  ) {
+    theme = "value";
+  }
 
-  let response = "Thank you for your feedback. We appreciate your review.";
+  let response =
+    "Thank you for your feedback. We appreciate your review.";
 
   if (sentiment === "positive") {
-    response = "Thank you for your kind words. We are glad you enjoyed your stay.";
+    response =
+      "Thank you for your kind words. We are glad you enjoyed your stay.";
   } else if (sentiment === "negative") {
-    response = "We apologize for the inconvenience. We will work to improve this experience.";
+    response =
+      "We apologize for the inconvenience. We will work to improve this experience.";
   }
 
-  return { sentiment, theme, response };
+  return {
+    sentiment,
+    theme,
+    response,
+  };
 }
 
+/* =====================================================
+   HEALTH CHECK
+===================================================== */
+
 app.get("/", (req, res) => {
-  res.status(200).json({ message: "Homestay Review Classifier API is running" });
+  res.status(200).json({
+    message: "Homestay Review Classifier API is running",
+  });
 });
 
-app.get("/api/reviews", verifyToken, async (req, res, next) => {
-  try {
-    const reviews = await Review.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: reviews });
-  } catch (error) {
-    next(error);
-  }
-});
+/* =====================================================
+   REVIEW ROUTES
+===================================================== */
 
-app.get("/api/reviews/search", async (req, res, next) => {
-  try {
-    const query = req.query.q;
-
-    if (!query) {
-      return res.status(400).json({
-        success: false,
-        message: "Search query is required",
+app.get(
+  "/api/reviews",
+  verifyToken,
+  async (req, res, next) => {
+    try {
+      const reviews = await Review.find().sort({
+        createdAt: -1,
       });
-    }
 
-    const result = await Review.find({
-      text: { $regex: query, $options: "i" },
-    });
-
-    res.status(200).json({ success: true, data: result });
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/reviews/:id", async (req, res, next) => {
-  try {
-    const review = await Review.findById(req.params.id);
-
-    if (!review) {
-      return res.status(404).json({
-        success: false,
-        message: "Review not found",
+      res.status(200).json({
+        success: true,
+        data: reviews,
       });
+    } catch (error) {
+      next(error);
     }
-
-    res.status(200).json({ success: true, data: review });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
-app.post("/api/reviews", async (req, res, next) => {
-  try {
-    const { text } = req.body;
+app.get(
+  "/api/reviews/search",
+  async (req, res, next) => {
+    try {
+      const query = req.query.q;
 
-    if (!text) {
-      return res.status(400).json({
-        success: false,
-        message: "Review text is required",
+      if (!query) {
+        return res.status(400).json({
+          success: false,
+          message: "Search query is required",
+        });
+      }
+
+      const result = await Review.find({
+        text: {
+          $regex: query,
+          $options: "i",
+        },
       });
+
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
     }
-
-    const analysis = analyzeReview(text);
-
-    const newReview = await Review.create({
-      text,
-      ...analysis,
-    });
-
-    res.status(201).json({ success: true, data: newReview });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
-app.put("/api/reviews/:id", async (req, res, next) => {
-  try {
-    const { text } = req.body;
+app.get(
+  "/api/reviews/:id",
+  async (req, res, next) => {
+    try {
+      const review = await Review.findById(req.params.id);
 
-    if (!text) {
-      return res.status(400).json({
-        success: false,
-        message: "Review text is required",
+      if (!review) {
+        return res.status(404).json({
+          success: false,
+          message: "Review not found",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        data: review,
       });
+    } catch (error) {
+      next(error);
     }
-
-    const analysis = analyzeReview(text);
-
-    const updatedReview = await Review.findByIdAndUpdate(
-      req.params.id,
-      { text, ...analysis },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedReview) {
-      return res.status(404).json({
-        success: false,
-        message: "Review not found",
-      });
-    }
-
-    res.status(200).json({ success: true, data: updatedReview });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
-app.delete("/api/reviews/:id", async (req, res, next) => {
-  try {
-    const deletedReview = await Review.findByIdAndDelete(req.params.id);
+app.post(
+  "/api/reviews",
+  async (req, res, next) => {
+    try {
+      const { text } = req.body;
 
-    if (!deletedReview) {
-      return res.status(404).json({
-        success: false,
-        message: "Review not found",
+      if (!text) {
+        return res.status(400).json({
+          success: false,
+          message: "Review text is required",
+        });
+      }
+
+      const analysis = analyzeReview(text);
+
+      const newReview = await Review.create({
+        text,
+        ...analysis,
       });
-    }
 
-    res.status(204).send();
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/analyze", async (req, res, next) => {
-  try {
-    const { text } = req.body;
-
-    if (!text) {
-      return res.status(400).json({
-        success: false,
-        message: "Review text is required",
+      res.status(201).json({
+        success: true,
+        data: newReview,
       });
+    } catch (error) {
+      next(error);
     }
-
-    const analysis = analyzeReview(text);
-
-    const newReview = await Review.create({
-      text,
-      ...analysis,
-    });
-
-    res.status(201).json({
-      success: true,
-      data: newReview,
-    });
-  } catch (error) {
-    next(error);
   }
-});
+);
+
+app.put(
+  "/api/reviews/:id",
+  async (req, res, next) => {
+    try {
+      const { text } = req.body;
+
+      if (!text) {
+        return res.status(400).json({
+          success: false,
+          message: "Review text is required",
+        });
+      }
+
+      const analysis = analyzeReview(text);
+
+      const updatedReview =
+        await Review.findByIdAndUpdate(
+          req.params.id,
+          {
+            text,
+            ...analysis,
+          },
+          {
+            new: true,
+            runValidators: true,
+          }
+        );
+
+      if (!updatedReview) {
+        return res.status(404).json({
+          success: false,
+          message: "Review not found",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        data: updatedReview,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+app.delete(
+  "/api/reviews/:id",
+  async (req, res, next) => {
+    try {
+      const deletedReview =
+        await Review.findByIdAndDelete(req.params.id);
+
+      if (!deletedReview) {
+        return res.status(404).json({
+          success: false,
+          message: "Review not found",
+        });
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/* =====================================================
+   ANALYZE ROUTE
+===================================================== */
+
+app.post(
+  "/api/analyze",
+  async (req, res, next) => {
+    try {
+      const { text } = req.body;
+
+      if (!text) {
+        return res.status(400).json({
+          success: false,
+          message: "Review text is required",
+        });
+      }
+
+      const analysis = analyzeReview(text);
+
+      const newReview = await Review.create({
+        text,
+        ...analysis,
+      });
+
+      res.status(201).json({
+        success: true,
+        data: newReview,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/* =====================================================
+   404 HANDLER
+===================================================== */
 
 app.use((req, res) => {
   res.status(404).json({
@@ -287,6 +410,10 @@ app.use((req, res) => {
     message: "Route not found",
   });
 });
+
+/* =====================================================
+   ERROR HANDLER
+===================================================== */
 
 app.use((err, req, res, next) => {
   console.error(err.message);
@@ -297,6 +424,10 @@ app.use((err, req, res, next) => {
   });
 });
 
+/* =====================================================
+   START SERVER
+===================================================== */
+
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
